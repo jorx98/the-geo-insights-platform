@@ -31,12 +31,15 @@ export async function addBrandAction(data: FormData) {
   
   const keywords = keywordsStr ? keywordsStr.split(',').map(k => k.trim()) : [];
 
+  const language = (data.get("language") as string) || 'en';
+  
   await db.insert(brands).values({
     id: crypto.randomUUID(),
     workspaceId,
     name,
     domain,
     keywords,
+    language,
   });
 
   revalidatePath("/dashboard");

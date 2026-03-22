@@ -14,6 +14,7 @@ export const brands = sqliteTable('brands', {
   name: text('name').notNull(),
   domain: text('domain'),
   keywords: text('keywords', { mode: 'json' }).$type<string[]>(),
+  language: text('language').default('en'),
 });
 
 export const geoScans = sqliteTable('geo_scans', {

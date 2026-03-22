@@ -1,4 +1,5 @@
 import { UserButton } from "@clerk/nextjs";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,6 +11,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             GEO Insights
           </div>
           <div className="flex items-center space-x-4">
+            <LanguageSwitcher />
             <UserButton />
           </div>
         </div>
