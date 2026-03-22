@@ -22,7 +22,7 @@ export const brands = sqliteTable('brands', {
 
 export const geoScans = sqliteTable('geo_scans', {
   id: text('id').primaryKey(),
-  brandId: text('brand_id').notNull().references(() => brands.id),
+  brandId: text('brand_id').notNull().references(() => brands.id, { onDelete: 'cascade' }),
   modelName: text('model_name').notNull(),
   promptUsed: text('prompt_used').notNull(),
   rawResponse: text('raw_response'),
@@ -32,7 +32,7 @@ export const geoScans = sqliteTable('geo_scans', {
 
 export const metrics = sqliteTable('metrics', {
   id: text('id').primaryKey(),
-  scanId: text('scan_id').notNull().references(() => geoScans.id),
+  scanId: text('scan_id').notNull().references(() => geoScans.id, { onDelete: 'cascade' }),
   rank: integer('rank'),
   sentiment: real('sentiment'),
   isRecommended: integer('is_recommended', { mode: 'boolean' }),
