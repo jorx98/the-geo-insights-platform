@@ -69,10 +69,10 @@ export default function DashboardContent({ userBrands, latestScans }: { userBran
                       setEditingBrandId(null);
                     }} className="space-y-2">
                        <input type="hidden" name="id" value={b.id} />
-                       <input name="name" defaultValue={b.name} className="w-full text-xs px-2 py-1 bg-zinc-900 border border-zinc-800 rounded" />
-                       <input name="product" defaultValue={b.product} className="w-full text-xs px-2 py-1 bg-zinc-900 border border-zinc-800 rounded" />
-                       <input name="service" defaultValue={b.service} className="w-full text-xs px-2 py-1 bg-zinc-900 border border-zinc-800 rounded" />
-                       <input name="country" defaultValue={b.country} className="w-full text-xs px-2 py-1 bg-zinc-900 border border-zinc-800 rounded" />
+                       <input name="name" defaultValue={b.name} placeholder={t.dashboard.brandName} className="w-full text-xs px-2 py-1 bg-zinc-900 border border-zinc-800 rounded" />
+                       <input name="product" defaultValue={b.product} placeholder={t.dashboard.product} className="w-full text-xs px-2 py-1 bg-zinc-900 border border-zinc-800 rounded" />
+                       <input name="service" defaultValue={b.service} placeholder={t.dashboard.service} className="w-full text-xs px-2 py-1 bg-zinc-900 border border-zinc-800 rounded" />
+                       <input name="country" defaultValue={b.country} placeholder={t.dashboard.country} className="w-full text-xs px-2 py-1 bg-zinc-900 border border-zinc-800 rounded" />
                        <div className="flex gap-2 mt-2">
                          <button type="submit" className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] py-1 rounded flex items-center justify-center gap-1">
                            <Check className="w-3 w-3" /> {t.dashboard.save}
