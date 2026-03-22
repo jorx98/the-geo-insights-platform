@@ -1,3 +1,5 @@
+'use client';
+
 import { useTranslation } from '@/lib/i18n';
 import { addBrandAction, updateBrandAction, deleteBrandAction } from "@/app/actions/brand";
 import { useFormStatus } from "react-dom";
