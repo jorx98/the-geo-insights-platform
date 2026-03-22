@@ -25,7 +25,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Brand not found' }, { status: 404 });
     }
 
-    const modelName = 'gemini-2.0-flash';
+    const modelName = 'gemini-2.5-flash';
     const prompt = `Act as a customer searching for: "${keyword}". Which brands do you recommend? Analyze if you would recommend "${brandRecord.name}". Provide the rank of the recommendation, the sentiment towards this brand, and whether it is explicitly recommended.`;
     
     const { object } = await generateObject({
