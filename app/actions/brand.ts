@@ -32,6 +32,7 @@ export async function addBrandAction(data: FormData) {
   const keywords = keywordsStr ? keywordsStr.split(',').map(k => k.trim()) : [];
 
   const language = (data.get("language") as string) || 'en';
+  const country = (data.get("country") as string) || 'Global';
   
   await db.insert(brands).values({
     id: crypto.randomUUID(),
@@ -40,6 +41,7 @@ export async function addBrandAction(data: FormData) {
     domain,
     keywords,
     language,
+    country,
   });
 
   revalidatePath("/dashboard");
