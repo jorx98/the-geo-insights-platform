@@ -28,10 +28,11 @@ export async function POST(req: Request) {
     const modelName = 'gemini-2.5-flash';
     const isSpanish = brandRecord.language === 'es';
     const country = brandRecord.country || 'Global';
+    const offering = brandRecord.product || brandRecord.service || keyword;
     
     const prompt = isSpanish 
-      ? `Actúa como un cliente en ${country} buscando: "${keyword}". ¿Qué marcas recomiendas? Analiza si recomendarías "${brandRecord.name}". Proporciona el ranking de la recomendación, el sentimiento hacia esta marca y si es explícitamente recomendada. Responde en español.`
-      : `Act as a customer in ${country} searching for: "${keyword}". Which brands do you recommend? Analyze if you would recommend "${brandRecord.name}". Provide the rank of the recommendation, the sentiment towards this brand, and whether it is explicitly recommended. Respond in English.`;
+      ? `Actúa como un cliente en ${country} buscando: "${offering}". ¿Qué marcas recomiendas? Analiza si recomendarías "${brandRecord.name}". Proporciona el ranking de la recomendación, el sentimiento hacia esta marca y si es explícitamente recomendada. Responde en español.`
+      : `Act as a customer in ${country} searching for: "${offering}". Which brands do you recommend? Analyze if you would recommend "${brandRecord.name}". Provide the rank of the recommendation, the sentiment towards this brand, and whether it is explicitly recommended. Respond in English.`;
     
     const { object } = await generateObject({
       model: google(modelName),

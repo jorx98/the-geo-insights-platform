@@ -1,8 +1,8 @@
-'use client';
-
 import { useTranslation } from '@/lib/i18n';
-import { addBrandAction } from "@/app/actions/brand";
+import { addBrandAction, updateBrandAction, deleteBrandAction } from "@/app/actions/brand";
 import { useFormStatus } from "react-dom";
+import { useState } from "react";
+import { Pencil, Trash2, X, Check } from "lucide-react";
 
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
@@ -19,6 +19,7 @@ function SubmitButton({ label }: { label: string }) {
 
 export default function DashboardContent({ userBrands, latestScans }: { userBrands: any[], latestScans: any[] }) {
   const { t, language } = useTranslation();
+  const [editingBrandId, setEditingBrandId] = useState<string | null>(null);
 
   return (
     <div className="grid gap-8 md:grid-cols-3">
@@ -36,8 +37,12 @@ export default function DashboardContent({ userBrands, latestScans }: { userBran
               <input name="domain" className="w-full mt-1.5 px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg focus:ring-2 focus:ring-blue-600 focus:outline-none" placeholder="acme.com" />
             </div>
             <div>
-              <label className="text-sm font-medium text-zinc-400">{t.dashboard.keywords}</label>
-              <input name="keywords" required className="w-full mt-1.5 px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg focus:ring-2 focus:ring-blue-600 focus:outline-none" placeholder="best crm, enterprise software" />
+              <label className="text-sm font-medium text-zinc-400">{t.dashboard.product}</label>
+              <input name="product" required className="w-full mt-1.5 px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg focus:ring-2 focus:ring-blue-600 focus:outline-none" placeholder="e.g. SaaS CRM" />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-zinc-400">{t.dashboard.service}</label>
+              <input name="service" required className="w-full mt-1.5 px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg focus:ring-2 focus:ring-blue-600 focus:outline-none" placeholder="e.g. Enterprise Consulting" />
             </div>
             <div>
               <label className="text-sm font-medium text-zinc-400">{t.dashboard.country}</label>
@@ -55,11 +60,47 @@ export default function DashboardContent({ userBrands, latestScans }: { userBran
           ) : (
             <ul className="space-y-3">
               {userBrands.map(b => (
-                <li key={b.id} className="p-3 bg-zinc-950 border border-zinc-800 rounded-lg flex justify-between items-center">
-                  <div>
-                    <div className="font-medium text-zinc-200">{b.name}</div>
-                    <div className="text-xs text-zinc-500 mt-1">{(b.keywords as string[])?.join(', ') || t.dashboard.noKeywords}</div>
-                  </div>
+                <li key={b.id} className="p-3 bg-zinc-950 border border-zinc-800 rounded-lg group">
+                  {editingBrandId === b.id ? (
+                    <form action={async (fd) => {
+                      await updateBrandAction(fd);
+                      setEditingBrandId(null);
+                    }} className="space-y-2">
+                       <input type="hidden" name="id" value={b.id} />
+                       <input name="name" defaultValue={b.name} className="w-full text-xs px-2 py-1 bg-zinc-900 border border-zinc-800 rounded" />
+                       <input name="product" defaultValue={b.product} className="w-full text-xs px-2 py-1 bg-zinc-900 border border-zinc-800 rounded" />
+                       <input name="service" defaultValue={b.service} className="w-full text-xs px-2 py-1 bg-zinc-900 border border-zinc-800 rounded" />
+                       <input name="country" defaultValue={b.country} className="w-full text-xs px-2 py-1 bg-zinc-900 border border-zinc-800 rounded" />
+                       <div className="flex gap-2 mt-2">
+                         <button type="submit" className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] py-1 rounded flex items-center justify-center gap-1">
+                           <Check className="w-3 w-3" /> {t.dashboard.save}
+                         </button>
+                         <button type="button" onClick={() => setEditingBrandId(null)} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white text-[10px] py-1 rounded flex items-center justify-center gap-1">
+                           <X className="w-3 w-3" /> {t.dashboard.cancel}
+                         </button>
+                       </div>
+                    </form>
+                  ) : (
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-zinc-200 truncate">{b.name}</div>
+                        <div className="text-[10px] text-zinc-500 mt-1 line-clamp-1">
+                          {b.product || b.service || t.dashboard.noKeywords} • {b.country}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
+                        <button onClick={() => setEditingBrandId(b.id)} className="p-1 hover:bg-zinc-800 rounded text-zinc-400 hover:text-white">
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                        <form action={deleteBrandAction}>
+                          <input type="hidden" name="id" value={b.id} />
+                          <button type="submit" className="p-1 hover:bg-red-950 rounded text-zinc-400 hover:text-red-400">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
@@ -110,3 +151,4 @@ export default function DashboardContent({ userBrands, latestScans }: { userBran
     </div>
   );
 }
+

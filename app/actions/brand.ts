@@ -27,22 +27,45 @@ export async function addBrandAction(data: FormData) {
 
   const name = data.get("name") as string;
   const domain = data.get("domain") as string;
-  const keywordsStr = data.get("keywords") as string;
-  
-  const keywords = keywordsStr ? keywordsStr.split(',').map(k => k.trim()) : [];
-
-  const language = (data.get("language") as string) || 'en';
+  const product = data.get("product") as string;
+  const service = data.get("service") as string;
   const country = (data.get("country") as string) || 'Global';
+  const language = (data.get("language") as string) || 'en';
   
+  // Backwards compatibility: use product/service as keywords
+  const keywords = [product, service].filter(Boolean);
+
   await db.insert(brands).values({
     id: crypto.randomUUID(),
     workspaceId,
     name,
     domain,
     keywords,
-    language,
+    product,
+    service,
     country,
+    language,
   });
 
+  revalidatePath("/dashboard");
+}
+
+export async function updateBrandAction(data: FormData) {
+  const id = data.get("id") as string;
+  const name = data.get("name") as string;
+  const product = data.get("product") as string;
+  const service = data.get("service") as string;
+  const country = data.get("country") as string;
+
+  await db.update(brands)
+    .set({ name, product, service, country, keywords: [product, service].filter(Boolean) })
+    .where(eq(brands.id, id));
+
+  revalidatePath("/dashboard");
+}
+
+export async function deleteBrandAction(data: FormData) {
+  const id = data.get("id") as string;
+  await db.delete(brands).where(eq(brands.id, id));
   revalidatePath("/dashboard");
 }
