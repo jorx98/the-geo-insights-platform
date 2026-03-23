@@ -66,6 +66,7 @@ export async function POST(req: Request) {
         metrics: z.object({
           sentiment: z.number().min(0).max(1),
           rank: z.number(),
+          shareOfVoice: z.number().min(0).max(100).describe("Percentage of mentions compared to competitors"),
           isRecommended: z.boolean(),
         })
       }),

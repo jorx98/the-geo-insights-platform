@@ -144,7 +144,11 @@ export default function DashboardContent({ userBrands, latestScans }: { userBran
            </div>
            <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6">
              <div className="text-sm font-medium text-zinc-400">{t.dashboard.shareOfVoice}</div>
-             <div className="text-3xl font-bold mt-2 text-emerald-500">N/A</div>
+             <div className="text-3xl font-bold mt-2 text-emerald-500">
+               {latestScans.filter(s => (s.report as any)?.metrics?.shareOfVoice).length > 0 
+                 ? `${(latestScans.reduce((acc, s) => acc + ((s.report as any)?.metrics?.shareOfVoice || 0), 0) / latestScans.filter(s => (s.report as any)?.metrics?.shareOfVoice).length).toFixed(1)}%` 
+                 : 'N/A'}
+             </div>
            </div>
         </div>
 
