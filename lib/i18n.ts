@@ -109,6 +109,12 @@ export const translations = {
       action: "Acción",
       position: "Pos.",
       sov: "SOV",
+      sources: "Fuentes de Referencia",
+      hallucinations: "Alucinaciones de IA (Precisión)",
+      claim: "Dato Incorrecto",
+      correction: "Corrección de Hecho",
+      severity: "Gravedad",
+      influence: "Influencia en IA",
     },
     common: {
       english: "Inglés",

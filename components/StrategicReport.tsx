@@ -1,10 +1,12 @@
 'use client';
 
 import { useTranslation } from "@/lib/i18n";
-import { ExternalLink, Search, User, Share2, Globe, TrendingUp } from "lucide-react";
+import { ExternalLink, Search, User, Share2, Globe, TrendingUp, AlertTriangle, Link2 } from "lucide-react";
 
 export interface ReportData {
   summary: string;
+  sources: { name: string; importance: number }[];
+  hallucinations: { claim: string; correction: string; severity: 'low' | 'medium' | 'high' }[];
   recommendations: {
     web: { site: string; justification: string; action: string }[];
     content: { theme: string; justification: string; action: string }[];
@@ -15,6 +17,7 @@ export interface ReportData {
   metrics: {
     sentiment: number;
     rank: number;
+    shareOfVoice: number;
     isRecommended: boolean;
   };
 }
@@ -36,7 +39,52 @@ export default function StrategicReport({ report }: { report: ReportData }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Sources Analysis */}
+        <SectionCard title={t.dashboard.sources} icon={<Link2 className="w-4 h-4" />}>
+           <div className="p-4 flex flex-wrap gap-2">
+              {report.sources?.map((source, i) => (
+                <div key={i} className="bg-zinc-800/50 border border-zinc-700/50 px-3 py-1.5 rounded-full flex items-center gap-2 transition-all hover:bg-zinc-700/50">
+                  <span className="text-[11px] font-medium text-zinc-200">{source.name}</span>
+                  <div className="w-8 h-1 bg-zinc-700 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-500" style={{ width: `${source.importance}%` }} />
+                  </div>
+                  <span className="text-[9px] text-zinc-500">{source.importance}%</span>
+                </div>
+              ))}
+           </div>
+        </SectionCard>
+
+        {/* Hallucinations / Accuracy */}
+        <SectionCard title={t.dashboard.hallucinations} icon={<AlertTriangle className="w-4 h-4" />}>
+           <div className="divide-y divide-zinc-800">
+              {report.hallucinations?.length === 0 ? (
+                <div className="p-4 text-center text-[11px] text-zinc-500 italic">No hallucinations detected in this scan. High accuracy.</div>
+              ) : (
+                report.hallucinations?.map((h, i) => (
+                  <div key={i} className="p-4 space-y-2">
+                    <div className="flex justify-between items-start gap-3">
+                       <span className="text-[10px] font-bold text-red-400 uppercase tracking-tighter">{t.dashboard.claim}:</span>
+                       <span className={`text-[9px] px-1.5 py-0.5 rounded uppercase font-bold ${
+                         h.severity === 'high' ? 'bg-red-950 text-red-500' : 
+                         h.severity === 'medium' ? 'bg-orange-950 text-orange-500' : 
+                         'bg-zinc-800 text-zinc-400'
+                       }`}>
+                         {h.severity}
+                       </span>
+                    </div>
+                    <p className="text-[11px] text-zinc-400 line-through decoration-red-900/50">{h.claim}</p>
+                    <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-tighter mt-2">{t.dashboard.correction}:</div>
+                    <p className="text-[11px] text-zinc-200">{h.correction}</p>
+                  </div>
+                ))
+              )}
+           </div>
+        </SectionCard>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Web Collaboration */}
+...
         <SectionCard title={t.dashboard.webCollaboration} icon={<Globe className="w-4 h-4" />}>
           <Table headers={[t.dashboard.site, t.dashboard.justification, t.dashboard.action]}>
             {report.recommendations.web.map((item, i) => (
