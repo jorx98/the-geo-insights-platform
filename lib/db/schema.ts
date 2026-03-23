@@ -27,6 +27,7 @@ export const geoScans = sqliteTable('geo_scans', {
   promptUsed: text('prompt_used').notNull(),
   rawResponse: text('raw_response'),
   status: text('status').notNull(),
+  report: text('report', { mode: 'json' }), // Structured analysis
   createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
 });
 

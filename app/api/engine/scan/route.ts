@@ -31,16 +31,43 @@ export async function POST(req: Request) {
     const offering = brandRecord.product || brandRecord.service || keyword;
     
     const prompt = isSpanish 
-      ? `Actúa como un cliente en ${country} buscando: "${offering}". ¿Qué marcas recomiendas? Analiza si recomendarías "${brandRecord.name}". Proporciona el ranking de la recomendación, el sentimiento hacia esta marca y si es explícitamente recomendada. Responde en español.`
-      : `Act as a customer in ${country} searching for: "${offering}". Which brands do you recommend? Analyze if you would recommend "${brandRecord.name}". Provide the rank of the recommendation, the sentiment towards this brand, and whether it is explicitly recommended. Respond in English.`;
+      ? `Actúa como un analista experto de mercado en ${country}. Realiza un análisis profundo sobre la marca "${brandRecord.name}" buscando: "${offering}".
+         Genera un reporte estratégico completo que incluya:
+         1. Un resumen del análisis.
+         2. Recomendaciones de colaboración con sitios web (mínimo 3).
+         3. Temas para creación de contenido SEO/IA.
+         4. Oportunidades en redes sociales.
+         5. Influencers locales clave.
+         6. Análisis de los 3 principales competidores.
+         7. Métricas de sentimiento (0.0 a 1.0) y ranking.
+         Responde detalladamente en español.`
+      : `Act as an expert market analyst in ${country}. Perform a deep analysis for the brand "${brandRecord.name}" searching for: "${offering}".
+         Generate a complete strategic report including:
+         1. Analysis summary.
+         2. Website collaboration recommendations (min 3).
+         3. Themes for SEO/AI content creation.
+         4. Social media opportunities.
+         5. Key local influencers.
+         6. Analysis of top 3 competitors.
+         7. Metrics for sentiment (0.0 to 1.0) and rank.
+         Respond in detail in English.`;
     
     const { object } = await generateObject({
       model: google(modelName),
       schema: z.object({
-        rank: z.number().describe('The position/rank of the brand in your recommendation list. 0 if not mentioned.'),
-        sentiment: z.number().describe('A sentiment score from -1.0 to 1.0 towards this specific brand.'),
-        isRecommended: z.boolean().describe('Whether the brand is explicitly recommended or not.'),
-        rawResponse: z.string().describe('Your full textual reasoning and analysis.'),
+        summary: z.string(),
+        recommendations: z.object({
+          web: z.array(z.object({ site: z.string(), justification: z.string(), action: z.string() })),
+          content: z.array(z.object({ theme: z.string(), justification: z.string(), action: z.string() })),
+          social: z.array(z.object({ platform: z.string(), justification: z.string(), action: z.string() })),
+          influencers: z.array(z.object({ name: z.string(), justification: z.string(), action: z.string() })),
+        }),
+        competitors: z.array(z.object({ name: z.string(), position: z.number(), shareOfVoice: z.number().describe("Percentage 0-100") })),
+        metrics: z.object({
+          sentiment: z.number().min(0).max(1),
+          rank: z.number(),
+          isRecommended: z.boolean(),
+        })
       }),
       prompt,
     });
@@ -52,16 +79,17 @@ export async function POST(req: Request) {
       brandId: brandId,
       modelName: modelName,
       promptUsed: prompt,
-      rawResponse: object.rawResponse,
+      rawResponse: object.summary,
       status: 'success',
+      report: object,
     });
 
     await db.insert(metrics).values({
       id: crypto.randomUUID(),
       scanId: scanId,
-      rank: object.rank,
-      sentiment: object.sentiment,
-      isRecommended: object.isRecommended,
+      rank: object.metrics.rank,
+      sentiment: object.metrics.sentiment,
+      isRecommended: object.metrics.isRecommended,
     });
 
     return NextResponse.json({ success: true, result: object });

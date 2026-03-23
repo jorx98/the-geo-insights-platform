@@ -1,10 +1,9 @@
-'use client';
-
 import { useTranslation } from '@/lib/i18n';
 import { addBrandAction, updateBrandAction, deleteBrandAction } from "@/app/actions/brand";
 import { useFormStatus } from "react-dom";
 import { useState } from "react";
-import { Pencil, Trash2, X, Check } from "lucide-react";
+import { Pencil, Trash2, X, Check, FileText, ChevronDown, ChevronUp } from "lucide-react";
+import StrategicReport, { ReportData } from "./StrategicReport";
 
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
@@ -22,9 +21,30 @@ function SubmitButton({ label }: { label: string }) {
 export default function DashboardContent({ userBrands, latestScans }: { userBrands: any[], latestScans: any[] }) {
   const { t, language } = useTranslation();
   const [editingBrandId, setEditingBrandId] = useState<string | null>(null);
+  const [expandedScanId, setExpandedScanId] = useState<string | null>(null);
+  const [selectedReport, setSelectedReport] = useState<ReportData | null>(null);
 
   return (
-    <div className="grid gap-8 md:grid-cols-3">
+    <div className="grid gap-8 md:grid-cols-3 relative">
+      {/* Modal for Full Report */}
+      {selectedReport && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+           <div className="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="sticky top-0 bg-zinc-950/80 backdrop-blur-md p-6 border-b border-zinc-800 flex justify-between items-center z-10">
+                 <h2 className="text-xl font-bold flex items-center gap-2">
+                    <FileText className="text-blue-500" /> {t.dashboard.strategicAnalysis}
+                 </h2>
+                 <button onClick={() => setSelectedReport(null)} className="p-2 hover:bg-zinc-900 rounded-full transition-colors">
+                    <X className="w-6 h-6" />
+                 </button>
+              </div>
+              <div className="p-8">
+                 <StrategicReport report={selectedReport} />
+              </div>
+           </div>
+        </div>
+      )}
+
       {/* Sidebar: Brands & Actions */}
       <div className="md:col-span-1 space-y-6">
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6">
@@ -135,7 +155,7 @@ export default function DashboardContent({ userBrands, latestScans }: { userBran
           ) : (
              <div className="space-y-4">
                 {latestScans.map(s => (
-                  <div key={s.id} className="p-4 bg-zinc-950 border border-zinc-800 rounded-lg">
+                  <div key={s.id} className="p-4 bg-zinc-950 border border-zinc-800 rounded-lg group">
                     <div className="flex justify-between items-start mb-2">
                        <span className="text-xs font-mono bg-zinc-800 text-zinc-300 px-2 py-1 rounded">{s.modelName}</span>
                        <span className={`text-xs px-2 py-1 rounded ${s.status === 'success' ? 'bg-emerald-950 text-emerald-400' : 'bg-red-950 text-red-400'}`}>
@@ -143,7 +163,28 @@ export default function DashboardContent({ userBrands, latestScans }: { userBran
                        </span>
                     </div>
                     <div className="text-sm text-zinc-300 italic mb-3">"{s.promptUsed}"</div>
-                    <div className="text-xs text-zinc-500 line-clamp-3">{s.rawResponse}</div>
+                    
+                    <div className={`text-xs text-zinc-500 leading-relaxed ${expandedScanId === s.id ? '' : 'line-clamp-3'}`}>
+                      {s.rawResponse}
+                    </div>
+
+                    <div className="mt-4 flex gap-3">
+                       <button 
+                         onClick={() => setExpandedScanId(expandedScanId === s.id ? null : s.id)}
+                         className="text-[10px] font-semibold text-zinc-400 hover:text-white flex items-center gap-1 uppercase tracking-wider transition-colors"
+                       >
+                         {expandedScanId === s.id ? <><ChevronUp className="w-3 h-3" /> Less</> : <><ChevronDown className="w-3 h-3" /> More</>}
+                       </button>
+
+                       {s.report && (
+                         <button 
+                           onClick={() => setSelectedReport(s.report as ReportData)}
+                           className="text-[10px] font-bold text-blue-400 hover:text-blue-300 flex items-center gap-1 uppercase tracking-wider transition-colors ml-auto"
+                         >
+                           <FileText className="w-3.5 h-3.5" /> {t.dashboard.viewReport}
+                         </button>
+                       )}
+                    </div>
                   </div>
                 ))}
              </div>
